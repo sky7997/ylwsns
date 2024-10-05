@@ -1,17 +1,16 @@
 import { Component } from "react";
-import JobCard from "../JobCardPage"; // Import JobCard component
 import axios from 'axios';
+import JobCard from "../JobCardPage"; // Import JobCard component
 import "./index.css";
 
 class Jobs extends Component {
     state = {
         jobs: [],
-        currentJobIndex: 0,
-        bookmarkedJobs: JSON.parse(localStorage.getItem('bookmarkedJobs')) || [],
         page: 1,
-        hasMoreJobs: true,
+        hasMore: true,
         loading: false,
         error: null,
+        currentJobIndex: 0, // Tracks the current job being shown
     };
 
     componentDidMount() {
@@ -19,9 +18,7 @@ class Jobs extends Component {
     }
 
     fetchJobs = () => {
-        const { page, hasMoreJobs } = this.state;
-
-        if (!hasMoreJobs) return;
+        const { page } = this.state;
 
         this.setState({ loading: true });
 
@@ -33,10 +30,10 @@ class Jobs extends Component {
                     this.setState(prevState => ({
                         jobs: [...prevState.jobs, ...newJobs],
                         page: prevState.page + 1,
-                        loading: false
+                        loading: false,
                     }));
                 } else {
-                    this.setState({ hasMoreJobs: false, loading: false });
+                    this.setState({ hasMore: false, loading: false });
                 }
             })
             .catch(error => {
@@ -45,57 +42,58 @@ class Jobs extends Component {
             });
     };
 
-    handleBookmarkJob = (job) => {
-        this.setState(prevState => {
-            const isBookmarked = prevState.bookmarkedJobs.some(item => item.id === job.id);
-            let updatedBookmarks;
+    // Handle swiping right (Bookmark the job)
+    handleSwipeRight = () => {
+        const { jobs, currentJobIndex } = this.state;
+        const currentJob = jobs[currentJobIndex];
 
-            if (isBookmarked) {
-                // Remove from bookmarks
-                updatedBookmarks = prevState.bookmarkedJobs.filter(item => item.id !== job.id);
-            } else {
-                // Add to bookmarks
-                updatedBookmarks = [...prevState.bookmarkedJobs, job];
+        let bookmarkedJobs = JSON.parse(localStorage.getItem('bookmarkedJobs')) || [];
+        const isBookmarked = bookmarkedJobs.some(item => item.id === currentJob.id);
+
+        if (!isBookmarked) {
+            bookmarkedJobs.push(currentJob);
+        }
+
+        localStorage.setItem('bookmarkedJobs', JSON.stringify(bookmarkedJobs));
+
+        this.showNextJob(); // Move to the next job after bookmarking
+    }
+
+    // Handle swiping left (Dismiss the job)
+    handleSwipeLeft = () => {
+        this.showNextJob(); // Simply move to the next job
+    }
+
+    showNextJob = () => {
+        this.setState(prevState => {
+            const newIndex = prevState.currentJobIndex + 1;
+
+            if (newIndex >= prevState.jobs.length) {
+                // Fetch more jobs if we're at the end of the current list
+                this.fetchJobs();
             }
 
-            localStorage.setItem('bookmarkedJobs', JSON.stringify(updatedBookmarks)); // Update localStorage
-
-            // Move to the next job
-            const nextJobIndex = (prevState.currentJobIndex + 1) % prevState.jobs.length;
-            return {
-                bookmarkedJobs: updatedBookmarks,
-                currentJobIndex: nextJobIndex,
-            };
+            return { currentJobIndex: newIndex % prevState.jobs.length };
         });
-    };
+    }
 
     render() {
-        const { jobs, currentJobIndex, loading, error, bookmarkedJobs } = this.state;
-
-        if (error) {
-            return <p className="error-message">{error}</p>;
-        }
-
-        if (loading) {
-            return <h4>Loading jobs...</h4>;
-        }
-
-        if (jobs.length === 0) {
-            return <h4>No jobs available.</h4>;
-        }
-
+        const { jobs, currentJobIndex, error, hasMore } = this.state;
         const currentJob = jobs[currentJobIndex];
-        const isBookmarked = bookmarkedJobs.some(item => item.id === currentJob.id);
 
         return (
             <div className="jobs-container">
                 <h1 className="title">Job Opportunities</h1>
-                <JobCard
-                    job={currentJob}
-                    onBookmark={this.handleBookmarkJob}
-                    isBookmarked={isBookmarked} // Pass isBookmarked to JobCard
-                />
-                {/* Remove the dismiss button */}
+                {error && <p className="error-message">{error}</p>}
+                {currentJob && (
+                    <JobCard
+                        job={currentJob}
+                        onSwipeRight={this.handleSwipeRight}
+                        onSwipeLeft={this.handleSwipeLeft}
+                    />
+                )}
+                {!currentJob && hasMore && <h4>Loading...</h4>}
+                {!hasMore && <p>No more jobs available.</p>}
             </div>
         );
     }
