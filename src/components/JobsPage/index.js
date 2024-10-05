@@ -1,128 +1,102 @@
-import { Component } from "react";
+import React, { useState, useEffect } from "react";
 import { useSwipeable } from "react-swipeable";
-import JobCard from "../JobCardPage";
 import axios from 'axios';
-import InfiniteScroll from "react-infinite-scroll-component";
 import "./index.css";
 
-const JobSwipeCard = ({ job, onBookmark, onDismiss }) => {
-    const handlers = useSwipeable({
-        onSwipedLeft: () => {
-            console.log(`Swiped left: ${job.title}`);
-            onDismiss(job);
-        },
-        onSwipedRight: () => {
-            console.log(`Swiped right: ${job.title}`);
-            onBookmark(job);
-        },
-    });
-
-    return (
-        <div {...handlers} className="job-swipe-card">
-            <JobCard job={job} />
-        </div>
+const Jobs = () => {
+    const [jobs, setJobs] = useState([]);
+    const [currentJobIndex, setCurrentJobIndex] = useState(0);
+    const [bookmarkedJobs, setBookmarkedJobs] = useState(
+        JSON.parse(localStorage.getItem('bookmarkedJobs')) || []
     );
-};
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-class Jobs extends Component {
-    state = {
-        jobs: [],
-        bookmarkedJobs: JSON.parse(localStorage.getItem('bookmarkedJobs')) || [],
-        hasMore: true,
-        page: 1,
-        loading: false,
-        error: null,
-        allJobs: []  // To store all fetched jobs
-    };
+    useEffect(() => {
+        handleFetchJobs();
+    }, []);
 
-    componentDidMount() {
-        console.log('Component mounted, fetching jobs...');
-        this.handleFetchJobs();
-    }
+    const handleFetchJobs = () => {
+        setLoading(true);
 
-    handleFetchJobs = () => {
-        const { page, allJobs } = this.state;
-
-        this.setState({ loading: true });
-
-        axios.get(`https://testapi.getlokalapp.com/common/jobs?page=${page}`)
+        axios.get(`https://testapi.getlokalapp.com/common/jobs?page=1`)
             .then(response => {
-                const newJobs = response.data.results;
-
-                if (newJobs.length > 0) {
-                    this.setState(prevState => ({
-                        jobs: [...prevState.jobs, ...newJobs],
-                        allJobs: [...prevState.allJobs, ...newJobs],
-                        page: prevState.page + 1,
-                        loading: false
-                    }));
-                } else {
-                    this.setState(prevState => ({
-                        jobs: [...prevState.jobs, ...allJobs],
-                        loading: false
-                    }));
-                }
+                const fetchedJobs = response.data.results;
+                setJobs(fetchedJobs);
+                setLoading(false);
             })
             .catch(error => {
                 console.log('Error fetching jobs', error);
-                this.setState({ loading: false, error: 'Failed to fetch jobs' });
+                setError('Failed to fetch jobs');
+                setLoading(false);
             });
-    }
+    };
 
-   
-
-    handleBookmarkJob = (job) => {
-        let { bookmarkedJobs } = this.state;
+    const handleBookmarkJob = (job) => {
         const isBookmarked = bookmarkedJobs.some(item => item.id === job.id);
-        
-        if (!isBookmarked) {
-            bookmarkedJobs.push(job);
-            console.log(`Bookmarked job: ${job.title}`);
-        } else {
-            console.log(`Job already bookmarked: ${job.title}`);
+
+        const updatedBookmarks = isBookmarked
+            ? bookmarkedJobs.filter(item => item.id !== job.id)
+            : [...bookmarkedJobs, job];
+
+        setBookmarkedJobs(updatedBookmarks);
+        localStorage.setItem('bookmarkedJobs', JSON.stringify(updatedBookmarks));
+    };
+
+    const handleSwipe = (direction) => {
+        if (direction === 'left') {
+            // Dismiss job on swipe left
+            const dismissedJob = jobs[currentJobIndex].title;
+            console.log(`Dismissed job: ${dismissedJob}`);
+            // Move to the next job, circularly
+            setCurrentJobIndex((currentJobIndex + 1) % jobs.length);
+        } else if (direction === 'right') {
+            // Bookmark job on swipe right
+            const bookmarkedJob = jobs[currentJobIndex].title;
+            handleBookmarkJob(jobs[currentJobIndex]);
+            console.log(`Bookmarked job: ${bookmarkedJob}`);
+            // Move to the next job, circularly
+            setCurrentJobIndex((currentJobIndex + 1) % jobs.length);
         }
-
-        this.setState({ bookmarkedJobs });
-        localStorage.setItem('bookmarkedJobs', JSON.stringify(bookmarkedJobs));
-        console.log('Updated bookmarked jobs:', bookmarkedJobs);
     };
 
-    handleDismissJob = (job) => {
-        this.setState(prevState => {
-            const updatedJobs = prevState.jobs.filter(item => item.id !== job.id);
-            console.log(`Dismissed job: ${job.title}`);
-            return { jobs: updatedJobs };
-        });
-    };
+    const handlers = useSwipeable({
+        onSwipedLeft: () => handleSwipe('left'),
+        onSwipedRight: () => handleSwipe('right'),
+    });
 
-    render() {
-        const { jobs, hasMore, error } = this.state;
-
-        return (
-            <div className="jobs-container">
-                <h1 className="title">Job Opportunities</h1>
-                {error && <p className="error-message">{error}</p>}
-                <InfiniteScroll
-                    dataLength={jobs.length}
-                    next={this.handleFetchJobs}
-                    hasMore={hasMore}
-                    loader={<h4>Loading...</h4>}
-                    endMessage={<p>No more jobs available.</p>}
-                >
-                    <div className="job-list">
-                        {jobs.map((job) => (
-                            <JobSwipeCard
-                                key={job.id}
-                                job={job}
-                                onBookmark={this.handleBookmarkJob}
-                                onDismiss={this.handleDismissJob}
-                            />
-                        ))}
-                    </div>
-                </InfiniteScroll>
-            </div>
-        );
+    if (loading) {
+        return <h2>Loading jobs...</h2>;
     }
-}
+
+    if (error) {
+        return <p className="error-message">{error}</p>;
+    }
+
+    if (jobs.length === 0) {
+        return <p>No jobs available.</p>;
+    }
+
+    const currentJob = jobs[currentJobIndex];
+
+    return (
+        <div {...handlers} className="job-fullscreen-card">
+            <div className="job-details">
+                <h1>{currentJob.title}</h1>
+                <h2>{currentJob.company}</h2>
+                <p><strong>Location:</strong> {currentJob.location}</p>
+                <p><strong>Job Type:</strong> {currentJob.type || 'N/A'}</p>
+                <p><strong>Salary Range:</strong> {currentJob.salary || 'N/A'}</p>
+                <p><strong>Description:</strong> {currentJob.description}</p>
+                <button
+                    onClick={() => handleBookmarkJob(currentJob)}
+                    className="bookmark-button"
+                >
+                    Bookmark
+                </button>
+            </div>
+        </div>
+    );
+};
 
 export default Jobs;
