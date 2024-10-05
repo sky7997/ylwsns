@@ -67,6 +67,10 @@ class JobCard extends Component {
                     <button onClick={this.handleBookmarkJob} className="bookmark-button">
                         {isBookmarked ? <FaBookmark /> : <FaRegBookmark />}
                     </button>
+                    {/* View Details Button */}
+                    <a href={`/jobs/${job.id}`} className="view-details-button">
+                        View Details
+                    </a>
                 </div>
             </div>
         );
