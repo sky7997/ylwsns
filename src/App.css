@@ -1,0 +1,35 @@
+
+.app {
+  font-family: 'Arial', sans-serif;
+  padding-bottom: 60px;
+}
+
+.nav-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #f0f4f8;
+  border-top: 1px solid #dddddd;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.nav-item {
+  text-decoration: none;
+  color: #007bff;
+  margin: 0 20px;
+  font-size: 1.1em;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  padding: 5px 0;
+}
+
+.nav-item:hover {
+  color: #ffffff;
+  background-color: #007bff;
+  border-radius: 5px;
+  padding: 5px 10px;
+}

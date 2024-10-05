@@ -1,0 +1,55 @@
+/* index.css */
+
+.bookmarked-jobs-conatiner {
+    background-color: #f9f9f9; /* Light background color */
+    color: #333333; /* Dark text color for contrast */
+    padding: 20px;
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    font-family: 'Arial', sans-serif;
+    max-width: 900px;
+    margin: 20px auto; /* Center container with margin */
+    border: 1px solid #dddddd; /* Light border */
+}
+
+.bookmarked-jobs-conatiner h1 {
+    font-size: 2em;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333333; /* Dark color for heading */
+}
+
+.no-bookmarks {
+    font-size: 1.5em;
+    text-align: center;
+    color: #777777; /* Slightly lighter color for no bookmarks text */
+    margin-top: 20px;
+}
+
+/* Style for each JobCard */
+.job-card {
+    background-color: #ffffff; /* White background for job cards */
+    color: #333333;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px; /* Rounded corners for job cards */
+    border: 1px solid #dddddd; /* Light border around job cards */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for job cards */
+}
+
+.job-card h2 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: #333333; /* Dark color for job title */
+}
+
+.job-card p {
+    font-size: 1em;
+    line-height: 1.4;
+    color: #555555; /* Slightly lighter color for text */
+}
+
+.job-card:hover {
+    border-color: #333333; /* Darker border on hover */
+    transition: border-color 0.3s ease;
+}

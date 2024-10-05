@@ -1,0 +1,75 @@
+/* index.css */
+
+/* General styling for job card */
+.job-card-container {
+    background-color: #ffffff; /* White background */
+    color: #333333; /* Dark text color for contrast */
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px; /* Rounded corners */
+    border: 1px solid #dddddd; /* Light border */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    font-family: 'Arial', sans-serif;
+    text-align: center; /* Center-align all content */
+}
+
+/* Styling for company name */
+.company-name {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #007bff; /* Primary color for company name */
+}
+
+/* Styling for job title */
+.job-title {
+    font-size: 1.3em;
+    margin-bottom: 10px;
+    color: #333333; /* Dark color for job title */
+}
+
+/* Styling for paragraphs */
+p {
+    font-size: 1em;
+    line-height: 1.5;
+    color: #555555; /* Slightly lighter color for text */
+    margin: 5px 0; /* Spacing between paragraphs */
+}
+
+/* Container for action buttons and link */
+.button-container {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column; /* Stack buttons and link vertically */
+    align-items: center; /* Center align items */
+}
+
+/* Styling for bookmark button */
+.bookmark-button {
+    background-color: #007bff; /* Primary color for button */
+    border: none;
+    color: #ffffff; /* White icon color */
+    padding: 10px;
+    border-radius: 5px; /* Rounded corners for button */
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: background-color 0.3s ease; /* Smooth transition for color change */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px; /* Space between button and link */
+}
+
+.bookmark-button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+}
+
+/* Styling for view details link */
+.nav-item {
+    color: #007bff; /* Primary color for link */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.nav-item:hover {
+    text-decoration: underline; /* Underline on hover */
+}
