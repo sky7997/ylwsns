@@ -20,6 +20,7 @@ Left Swipe to Dismiss:
 Users can swipe left to dismiss or discard a job listing they do not want to bookmark.
 Job Display:
 Instead of swiping on images, you will be swiping on job listings. Each card will display key job details (e.g., job title, company, location).
+It can be used in offline in mobile devices
 </p>
 
 ## INSTALL
